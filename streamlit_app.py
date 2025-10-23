@@ -9,20 +9,20 @@ def load_data():
     session = get_active_session()
     query = """
     SELECT
-        t.STATION_ID,
-        t.STATION_NAME,
-        t.REGION_ID,
-        t.STATION_TYPE,
-        t.CAPACITY,
-        t.IS_RENTING,
-        t.IS_RETURNING,
-        t.NUM_BIKES_AVAILABLE,
-        t.NUM_DOCKS_AVAILABLE,
-        t.NUM_EBIKES_AVAILABLE,
-        t.LATITUDE,
-        t.LONGITUDE,
-        t.RAW_TIMESTAMP,
-        t.LAST_REPORTED_TS
+        STATION_ID,
+        STATION_NAME,
+        REGION_ID,
+        STATION_TYPE,
+        CAPACITY,
+        IS_RENTING,
+        IS_RETURNING,
+        NUM_BIKES_AVAILABLE,
+        NUM_DOCKS_AVAILABLE,
+        NUM_EBIKES_AVAILABLE,
+        LATITUDE,
+        LONGITUDE,
+        RAW_TIMESTAMP,
+        LAST_REPORTED_TS
 
     FROM GOLD.CITIBIKESNYC.CITIBIKESNYC_LATEST_STATION_DATA
     """
