@@ -21,7 +21,7 @@ def load_data():
         NUM_EBIKES_AVAILABLE,
         LATITUDE,
         LONGITUDE,
-        RAW_TIMESTAMP,
+        GOLD_TIMESTAMP,
         LAST_REPORTED_TS
 
     FROM GOLD.CITIBIKESNYC.CITIBIKESNYC_LATEST_STATION_DATA
@@ -39,7 +39,7 @@ regions = sorted(df["REGION_ID"].dropna().unique().tolist()) if "REGION_ID" in d
 types = sorted(df["STATION_TYPE"].dropna().unique().tolist()) if "STATION_TYPE" in df.columns else []
 
 st.sidebar.header("Filters")
-sel_regions = st.sidebar.multiselect("Region", regions, default=regions) if regions else []
+sel_regions = st.sidebar.multiselect("Region", regions) if regions else []
 sel_type = st.sidebar.selectbox("Station type", ["All"] + types) if types else "All"
 
 # Capacity range slider (handles missing or non-numeric values)
@@ -81,7 +81,7 @@ if {"LATITUDE", "LONGITUDE"}.issubset(f.columns):
     m = f[["LATITUDE", "LONGITUDE", "STATION_NAME"]].dropna()
     m = m.rename(columns={"LATITUDE": "lat", "LONGITUDE": "lon"})
     st.subheader("Map")
-    st.map(m, use_container_width=True)
+    st.map(data=m, use_container_width=True, size='CAPACITY')
 
 st.subheader("Top stations by bikes available")
 top_n = st.slider("Top N", 5, 50, 15)
@@ -94,19 +94,14 @@ if "STATION_NAME" in f.columns and "NUM_BIKES_AVAILABLE" in f.columns:
         .head(top_n)
         .set_index("STATION_NAME")
     )
-    st.bar_chart(top, use_container_width=True)
+    st.bar_chart(top, use_container_width=True, horizontal=True)
 
 st.subheader("Data")
 # Display filtered data
 st.dataframe(f, use_container_width=True)
 
 # Last updated caption from available timestamps
-ts_cols = []
-if "RAW_TIMESTAMP" in f.columns:
-    ts_cols.append(pd.to_datetime(f["RAW_TIMESTAMP"], errors="coerce"))
-if "LAST_REPORTED_TS" in f.columns:
-    ts_cols.append(pd.to_datetime(f["LAST_REPORTED_TS"], errors="coerce"))
-if ts_cols:
-    last_updated = pd.concat(ts_cols).max()
-    if pd.notnull(last_updated):
-        st.caption(f"Last updated: {last_updated}")
+
+last_updated = pd.to_datetime(f["GOLD_TIMESTAMP"], errors="coerce").max()
+if pd.notnull(last_updated):
+    st.caption(f"Last updated: {last_updated}")
