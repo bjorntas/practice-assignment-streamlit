@@ -1,6 +1,7 @@
 import streamlit as st
 from snowflake.snowpark.context import get_active_session
 import pandas as pd
+import altair as alt
 
 # Load data
 @st.cache_data(ttl=300)
@@ -86,15 +87,22 @@ if {"LATITUDE", "LONGITUDE"}.issubset(f.columns):
 st.subheader("Top stations by bikes available")
 top_n = st.slider("Top N", 5, 50, 15)
 if "STATION_NAME" in f.columns and "NUM_BIKES_AVAILABLE" in f.columns:
-    # Simple bar chart with Streamlit (no external chart lib)
+    # Altair chart to control sort (descending by bikes available) and orientation
     top = (
         f[["STATION_NAME", "NUM_BIKES_AVAILABLE"]]
         .assign(NUM_BIKES_AVAILABLE=pd.to_numeric(f["NUM_BIKES_AVAILABLE"], errors="coerce").fillna(0))
         .sort_values("NUM_BIKES_AVAILABLE", ascending=False)
         .head(top_n)
-        .set_index("STATION_NAME")
     )
-    st.bar_chart(top, use_container_width=True, horizontal=True)
+    chart = (
+        alt.Chart(top)
+        .mark_bar()
+        .encode(
+            y=alt.Y("STATION_NAME:N", sort="-x", title="Station"),
+            x=alt.X("NUM_BIKES_AVAILABLE:Q", title="Bikes available")
+        )
+    )
+    st.altair_chart(chart, use_container_width=True)
 
 st.subheader("Data")
 # Display filtered data
